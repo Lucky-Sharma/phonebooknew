@@ -9,7 +9,7 @@ import { Button } from "@mui/material";
 import { PersonCard } from "./components/PersonCard";
 import { Counter } from "./components/Counter";
 
-const plength = 5;
+const page_Length = 5;
 
 export const Board = () => {
   const dispatch = useDispatch();
@@ -41,13 +41,12 @@ export const Board = () => {
     }
     return b.bookmarked ? 1 : -1;
   });
-
   
-  const startIndex = (currentPage - 1) * plength;
-  const endIndex = currentPage * plength;
+  const startIndex = (currentPage - 1) * page_Length;
+  const endIndex = currentPage * page_Length;
   const paginatedContacts = sortedFilteredContacts.slice(startIndex, endIndex);
 
-  const totalPages = Math.max(1, Math.ceil(filteredContacts.length / plength));
+  const totalPages = Math.max(1, Math.ceil(filteredContacts.length / page_Length));
 
  
   useEffect(() => {

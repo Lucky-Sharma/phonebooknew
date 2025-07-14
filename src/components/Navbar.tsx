@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm, setSelectedFilter } from "../Redux/Slices/CreateSlice";
 import type { RootState } from "../Redux/Store";
 import Divider from "@mui/material/Divider";
+import { blue } from "@mui/material/colors";
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
@@ -62,16 +63,17 @@ export function Navbar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar
-          sx={{ display: "flex", alignItems: "center", background: "white" }}
+      <AppBar position="static" elevation={0} sx={{ padding: 0, minHeight: "auto"}}>
+        <Toolbar 
+          sx={{ display: "flex", alignItems: "center", background: "white",  px: 0, py: 0}}
         >
           <Box
             sx={{
-              padding: "5px",
-              margin: "5px",
+              paddingY:"5px",
+              paddingX: "7px",
+              margin: "9px",
               border: "solid 1px",
-              borderRadius: "200%",
+              borderRadius: "100%",
               backgroundColor: "#4169E1",
               color: "white",
             }}
@@ -116,7 +118,8 @@ export function Navbar() {
                 borderRadius: 1,
                 flex: 1,
                 boxShadow: 3,
-                maxWidth: 250,
+                maxWidth: "250px",
+                marginLeft:"290px"
               }}
             />
           </Box>
@@ -169,8 +172,8 @@ export function Navbar() {
         >
           <span
             style={{
-              marginRight: "20px",
-              marginLeft: "200px",
+              marginRight: "30px",
+              marginLeft: "135px",
               marginBottom: "10px",
             }}
           >

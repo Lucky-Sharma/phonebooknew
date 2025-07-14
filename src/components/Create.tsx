@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,10 +11,13 @@ import {
   Select,
   MenuItem,
   Slide,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { addContact, updateForm, resetForm } from "../Redux/Slices/CreateSlice";
 import type { RootState } from "../Redux/Store";
+
 interface CreateProps {
   open: boolean;
   onClose: () => void;
@@ -22,14 +25,23 @@ interface CreateProps {
 
 export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
   const dispatch = useDispatch();
-  const contacts = useSelector(
-    (state: RootState) => state.ContectReducer.Contacts
-  );
+  const contacts = useSelector((state: RootState) => state.ContectReducer.Contacts);
   const formData = useSelector((state: RootState) => state.ContectReducer.form);
+
+  const [errors, setErrors] = useState({
+    name: "",
+    phoneno: "",
+    address: "",
+    category: "",
+  });
+  
+  const [globalError, setGlobalError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       dispatch(resetForm());
+      setErrors({ name: "", phoneno: "", address: "", category: "" });
+      setGlobalError(null);
     }
   }, [open, dispatch]);
 
@@ -38,35 +50,76 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
     return Math.max(...contacts.map((c) => c.id)) + 1;
   };
 
-  const handleSubmit = () => {
-    if (
-      formData.name == "" ||
-      formData.address == "" ||
-      formData.category == "" ||
-      formData.phoneno.length < 10 ||
-      formData.phoneno.length > 10
-    ) {
-      alert("Please fill the data properly");
-    } else {
-      dispatch(
-        addContact({
-          id: getNextId(),
-          name: formData.name,
-          Phoneno: Number(formData.phoneno),
-          Address: formData.address,
-          Label: formData.category,
-          image: "",
-        })
-      );
-      dispatch(resetForm());
-      onClose();
+  const validate = () => {
+    const newErrors = {
+      name: "",
+      phoneno: "",
+      address: "",
+      category: "",
+    };
+    let isValid = false;
+
+    if (formData.name.trim() === "") {
+      newErrors.name = "Name is required.";
+      isValid = true;
     }
+
+    if (formData.phoneno.trim() === "") {
+      newErrors.phoneno = "Phone number is required.";
+      isValid = true;
+    } else if (
+      formData.phoneno.length < 10 ||
+      formData.phoneno.length > 10) {
+      newErrors.phoneno = "Phone number must be exactly 10 digits.";
+      isValid = true;
+    }
+
+    if (formData.address.trim() === "") {
+      newErrors.address = "Address is required.";
+      isValid = true;
+    }
+
+    if (formData.category.trim() === "") {
+      newErrors.category = "Category is required.";
+      isValid = true;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (validate()) {
+      setGlobalError("Invalid form submission");
+      return;
+    }
+
+    dispatch(
+      addContact({
+        id: getNextId(),
+        name: formData.name,
+        Phoneno: Number(formData.phoneno),
+        Address: formData.address,
+        Label: formData.category,
+        image: "",
+      })
+    );
+
+    dispatch(resetForm());
+    setErrors({ name: "", phoneno: "", address: "", category: "" });
+    setGlobalError(null);
+    onClose();
   };
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={() => {
+        dispatch(resetForm());
+        setErrors({ name: "", phoneno: "", address: "", category: "" });
+        setGlobalError(null);
+        onClose();
+      }}
       slots={{ transition: Slide }}
       slotProps={{
         transition: {
@@ -78,40 +131,57 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
     >
       <DialogTitle>Create Contact</DialogTitle>
       <DialogContent>
+        {globalError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            <AlertTitle>Error</AlertTitle>
+            {globalError}
+          </Alert>
+        )}
+
         <TextField
-          error={formData.name.trim() === ""}
           required
           label="Name"
           fullWidth
           margin="dense"
+          error={!!errors.name}
+          helperText={errors.name}
           value={formData.name}
           onChange={(e) => dispatch(updateForm({ name: e.target.value }))}
         />
+
         <TextField
-          error={formData.phoneno.length < 10 || formData.phoneno.length > 10}
           required
           label="Phone Number"
           fullWidth
           margin="dense"
+          error={!!errors.phoneno}
+          helperText={errors.phoneno}
           value={formData.phoneno}
           onChange={(e) => dispatch(updateForm({ phoneno: e.target.value }))}
         />
+
         <TextField
-          error={formData.address.trim() === ""}
           required
           label="Address"
           fullWidth
           margin="dense"
+          error={!!errors.address}
+          helperText={errors.address}
           value={formData.address}
           onChange={(e) => dispatch(updateForm({ address: e.target.value }))}
         />
-        <FormControl required fullWidth margin="dense">
+
+        <FormControl
+          required
+          fullWidth
+          margin="dense"
+          error={!!errors.category}
+        >
           <InputLabel>Category</InputLabel>
           <Select
-            error={formData.category.trim() === ""}
             value={formData.category}
-            onChange={(e) => dispatch(updateForm({ category: e.target.value }))}
             label="Category"
+            onChange={(e) => dispatch(updateForm({ category: e.target.value }))}
           >
             <MenuItem value="Work">Work</MenuItem>
             <MenuItem value="School">School</MenuItem>
@@ -119,11 +189,19 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
             <MenuItem value="Family">Family</MenuItem>
           </Select>
         </FormControl>
+        {errors.category && (
+          <div style={{ color: "#d32f2f", fontSize: "0.75rem", marginTop: "3px", marginLeft: "14px" }}>
+            {errors.category}
+          </div>
+        )}
       </DialogContent>
+
       <DialogActions>
         <Button
           onClick={() => {
             dispatch(resetForm());
+            setErrors({ name: "", phoneno: "", address: "", category: "" });
+            setGlobalError(null);
             onClose();
           }}
         >
