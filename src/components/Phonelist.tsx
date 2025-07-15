@@ -2,7 +2,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
-import { Box, Avatar, Typography, IconButton, Slide} from "@mui/material";
+import { Box, Avatar, Typography, IconButton} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../Redux/Store";
 import {
@@ -39,7 +39,7 @@ export const PhoneList = ({ contact }: Props) => {
   };
 
   return (
-   <Slide in={true} direction="up">
+   
   <Box
     onClick={() => {
       dispatch(setSelectedContact(contact));
@@ -115,7 +115,7 @@ export const PhoneList = ({ contact }: Props) => {
       </IconButton>
     </div>
   </Box>
-</Slide>
+
 
   );
 };
