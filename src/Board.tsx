@@ -4,11 +4,15 @@ import { Navbar } from "./components/Navbar";
 import { PhoneList } from "./components/Phonelist";
 import { Editcard } from "./components/Editcard";
 import { useEffect } from "react";
-import { setCounter, setPagination } from "./Redux/Slices/CreateSlice";
-import { Button } from "@mui/material";
+import {
+  setCounter,
+  setPagination,
+  setsubmittedAllert,
+} from "./Redux/Slices/CreateSlice";
+import { Alert, Button, Snackbar } from "@mui/material";
 import { PersonCard } from "./components/PersonCard";
 import { Counter } from "./components/Counter";
-
+import DoneIcon from '@mui/icons-material/Done';
 const page_Length = 5;
 
 export const Board = () => {
@@ -24,7 +28,9 @@ export const Board = () => {
   const selectedFilter = useSelector(
     (state: RootState) => state.ContectReducer.UI.selectedFilter
   );
-
+  const allertStatus = useSelector(
+    (state: RootState) => state.ContectReducer.UI.submittedAllert
+  );
   const filteredContacts = Data.filter((contact) => {
     const matchesSearch = contact.name
       .toLowerCase()
@@ -41,18 +47,19 @@ export const Board = () => {
     }
     return b.bookmarked ? 1 : -1;
   });
-  
+
   const startIndex = (currentPage - 1) * page_Length;
   const endIndex = currentPage * page_Length;
   const paginatedContacts = sortedFilteredContacts.slice(startIndex, endIndex);
 
-  const totalPages = Math.max(1, Math.ceil(filteredContacts.length / page_Length));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredContacts.length / page_Length)
+  );
 
- 
   useEffect(() => {
     dispatch(setPagination(1));
   }, [searchTerm, selectedFilter]);
-
 
   useEffect(() => {
     dispatch(setCounter(sortedFilteredContacts.length));
@@ -76,7 +83,9 @@ export const Board = () => {
           Prev
         </Button>
 
-        <span style={{ margin: "0 10px", fontWeight: "bold", paddingTop: "8px" }}>
+        <span
+          style={{ margin: "0 10px", fontWeight: "bold", paddingTop: "8px" }}
+        >
           Page {currentPage} of {totalPages}
         </span>
 
@@ -89,7 +98,27 @@ export const Board = () => {
           Next
         </Button>
       </div>
-
+      
+      <Snackbar
+  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+  open={allertStatus}
+  autoHideDuration={4000}
+  onClose={() => dispatch(setsubmittedAllert(false))}
+>
+  <Alert
+    onClose={() => dispatch(setsubmittedAllert(false))}
+    severity="success"
+    icon={<DoneIcon/>}
+    sx={{
+      width: '100%',
+      backgroundColor: '#d4edda', 
+      color: '#155724',           
+      fontWeight: 500
+    }}
+  >
+    Phone Number has been added successfully!
+  </Alert>
+</Snackbar>
       <Editcard />
       <PersonCard />
     </div>

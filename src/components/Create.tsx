@@ -14,8 +14,14 @@ import {
   Alert,
   AlertTitle,
 } from "@mui/material";
+import validator from "validator";
 import { useDispatch, useSelector } from "react-redux";
-import { addContact, updateForm, resetForm } from "../Redux/Slices/CreateSlice";
+import {
+  addContact,
+  updateForm,
+  resetForm,
+  setsubmittedAllert,
+} from "../Redux/Slices/CreateSlice";
 import type { RootState } from "../Redux/Store";
 
 interface CreateProps {
@@ -34,14 +40,16 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
     address: "",
     category: "",
   });
-  
-  const [globalError, setGlobalError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       dispatch(resetForm());
-      setErrors({ name: "", phoneno: "", address: "", category: "" });
-      setGlobalError(null);
+      setErrors({
+        name: "",
+        phoneno: "",
+        address: "",
+        category: "",
+      });
     }
   }, [open, dispatch]);
 
@@ -57,31 +65,32 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
       address: "",
       category: "",
     };
-    let isValid = false;
+
+    let isValid = true;
 
     if (formData.name.trim() === "") {
       newErrors.name = "Name is required.";
-      isValid = true;
+      isValid = false;
     }
 
-    if (formData.phoneno.trim() === "") {
-      newErrors.phoneno = "Phone number is required.";
-      isValid = true;
-    } else if (
-      formData.phoneno.length < 10 ||
-      formData.phoneno.length > 10) {
-      newErrors.phoneno = "Phone number must be exactly 10 digits.";
-      isValid = true;
+    const phoneStr = formData.phoneno?.toString() || "";
+
+    if (
+      phoneStr.length !== 10 ||
+      !validator.isMobilePhone(phoneStr) 
+    ) {
+      newErrors.phoneno = "Phone number must be valid and exactly 10 digits.";
+      isValid = false;
     }
 
     if (formData.address.trim() === "") {
       newErrors.address = "Address is required.";
-      isValid = true;
+      isValid = false;
     }
 
     if (formData.category.trim() === "") {
       newErrors.category = "Category is required.";
-      isValid = true;
+      isValid = false;
     }
 
     setErrors(newErrors);
@@ -89,35 +98,32 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
   };
 
   const handleSubmit = () => {
-    if (validate()) {
-      setGlobalError("Invalid form submission");
-      return;
-    }
+    if (!validate()) return;
+
+    dispatch(setsubmittedAllert(true));
 
     dispatch(
       addContact({
         id: getNextId(),
-        name: formData.name,
+        name: formData.name.trim(),
         Phoneno: Number(formData.phoneno),
-        Address: formData.address,
+        Address: formData.address.trim(),
         Label: formData.category,
         image: "",
       })
     );
 
     dispatch(resetForm());
-    setErrors({ name: "", phoneno: "", address: "", category: "" });
-    setGlobalError(null);
     onClose();
   };
+
+  const hasErrors = Object.values(errors).some((error) => error !== "");
 
   return (
     <Dialog
       open={open}
       onClose={() => {
         dispatch(resetForm());
-        setErrors({ name: "", phoneno: "", address: "", category: "" });
-        setGlobalError(null);
         onClose();
       }}
       slots={{ transition: Slide }}
@@ -131,10 +137,10 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
     >
       <DialogTitle>Create Contact</DialogTitle>
       <DialogContent>
-        {globalError && (
+        {hasErrors && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            <AlertTitle>Error</AlertTitle>
-            {globalError}
+            <AlertTitle>Validation Error</AlertTitle>
+            Please fix the form errors below.
           </Alert>
         )}
 
@@ -171,12 +177,7 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
           onChange={(e) => dispatch(updateForm({ address: e.target.value }))}
         />
 
-        <FormControl
-          required
-          fullWidth
-          margin="dense"
-          error={!!errors.category}
-        >
+        <FormControl required fullWidth margin="dense" error={!!errors.category}>
           <InputLabel>Category</InputLabel>
           <Select
             value={formData.category}
@@ -190,7 +191,14 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
           </Select>
         </FormControl>
         {errors.category && (
-          <div style={{ color: "#d32f2f", fontSize: "0.75rem", marginTop: "3px", marginLeft: "14px" }}>
+          <div
+            style={{
+              color: "#d32f2f",
+              fontSize: "0.75rem",
+              marginTop: "3px",
+              marginLeft: "14px",
+            }}
+          >
             {errors.category}
           </div>
         )}
@@ -200,8 +208,6 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
         <Button
           onClick={() => {
             dispatch(resetForm());
-            setErrors({ name: "", phoneno: "", address: "", category: "" });
-            setGlobalError(null);
             onClose();
           }}
         >

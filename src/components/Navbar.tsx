@@ -9,6 +9,7 @@ import {
   MenuItem,
   Select,
   InputAdornment,
+  Divider,
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -20,8 +21,6 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm, setSelectedFilter } from "../Redux/Slices/CreateSlice";
 import type { RootState } from "../Redux/Store";
-import Divider from "@mui/material/Divider";
-import { blue } from "@mui/material/colors";
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
@@ -63,44 +62,41 @@ export function Navbar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" elevation={0} sx={{ padding: 0, minHeight: "auto"}}>
-        <Toolbar 
-          sx={{ display: "flex", alignItems: "center", background: "white",  px: 0, py: 0}}
+      <AppBar position="static" elevation={0} sx={{ padding: 0, minHeight: "auto" }}>
+        <Toolbar
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            background: "white",
+            px: 2,
+            py: 1,
+            gap: 2,
+            flexWrap: "wrap",
+          }}
         >
-          <Box
-            sx={{
-              paddingY:"5px",
-              paddingX: "7px",
-              margin: "9px",
-              border: "solid 1px",
-              borderRadius: "100%",
-              backgroundColor: "#4169E1",
-              color: "white",
-            }}
-          >
-            <PersonIcon />
-          </Box>
-
-          <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
+         
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                border: "solid 1px",
+                borderRadius: "100%",
+                backgroundColor: "#4169E1",
+                color: "white",
+                p: "6px",
+              }}
+            >
+              <PersonIcon />
+            </Box>
             <Typography
               variant="h6"
-              noWrap
-              component="div"
-              sx={{ display: { xs: "none", sm: "block" }, color: "black" }}
+              sx={{ color: "black", display: { xs: "none", sm: "block" } }}
             >
               PhoneBook
             </Typography>
           </Box>
 
-          <Box
-            sx={{
-              flex: 2,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
+          <Box sx={{ flexGrow: 1, maxWidth: 300 }}>
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ "aria-label": "search" }}
@@ -116,24 +112,21 @@ export function Navbar() {
                 color: "black",
                 px: 1,
                 borderRadius: 1,
-                flex: 1,
                 boxShadow: 3,
-                maxWidth: "250px",
-                marginLeft:"290px"
+                width: "100%",
               }}
             />
           </Box>
 
-          <Box sx={{ flex: 1 }} />
-          <div>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Select
               value={selectedFilter}
               onChange={handleFilterChange}
               displayEmpty
               inputProps={{ "aria-label": "Filter contacts by label" }}
-              sx={{ color: "black", ml: 2, minWidth: 20 }}
               variant="standard"
               startAdornment={<FilterAltIcon sx={{ mr: 1 }} />}
+              sx={{ color: "black", minWidth: 120 }}
             >
               <MenuItem value="">
                 <em>All</em>
@@ -146,10 +139,10 @@ export function Navbar() {
 
             <Button
               sx={{
-                m: 3,
                 borderRadius: "20px",
                 background: "white",
                 color: "black",
+                whiteSpace: "nowrap",
               }}
               variant="contained"
               color="primary"
@@ -158,33 +151,30 @@ export function Navbar() {
             >
               Create Contact
             </Button>
-          </div>
+          </Box>
         </Toolbar>
+
         <Divider component="li" style={{ backgroundColor: "white" }} />
-        <div
-          style={{
+
+        <Box
+          sx={{
             backgroundColor: "white",
             color: "black",
             display: "flex",
             justifyContent: "space-between",
-            paddingTop: "10px",
+            alignItems: "center",
+            px: 4,
+            py: 1,
           }}
         >
-          <span
-            style={{
-              marginRight: "30px",
-              marginLeft: "135px",
-              marginBottom: "10px",
-            }}
-          >
-            Name
-          </span>
-          <span style={{ marginRight: "480px", marginLeft: "00px" }}>
-            Phone Number
-          </span>
-        </div>
+          <Typography sx={{ flex: 1, marginRight:5, marginLeft:14}} >Name</Typography>
+          <Typography sx={{ flex: 1, textAlign: "right", marginRight:17}}>Phone Number</Typography>
+          <Typography sx={{ flex: 1, textAlign: "right", marginRight:10}}>Actions</Typography>
+
+        </Box>
       </AppBar>
 
+      {/* Create Modal */}
       <Create open={createOpen} onClose={handleCreateClose} />
     </Box>
   );

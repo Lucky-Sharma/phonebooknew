@@ -24,6 +24,7 @@ export interface UIState {
   selectedContact: Contact | null;
   showPersonCard: boolean;
   counter: number;
+  submittedAllert:boolean
 }
 
 export interface CounterState {
@@ -116,6 +117,7 @@ const initialState: CounterState = {
     selectedContact: null,
     showPersonCard: false,
     counter: 0,
+    submittedAllert:false
   },
   form: {
     name: "",
@@ -216,7 +218,10 @@ export const changeContacts = createSlice({
     },
     setCounter: (state, action) => {
   state.UI.counter = action.payload;
-}
+},
+    setsubmittedAllert:(state,action:PayloadAction<boolean>)=>{
+      state.UI.submittedAllert = action.payload;
+    }
   },
 });
 
@@ -233,7 +238,8 @@ export const {
   resetForm,
   setPagination,
   setShowPersonCard,
-  setCounter
+  setCounter,
+  setsubmittedAllert
 } = changeContacts.actions;
 
 export default changeContacts.reducer;
