@@ -13,7 +13,11 @@ import {
   Slide,
   Alert,
   AlertTitle,
+  Box,
+  Avatar,
+  Typography,
 } from "@mui/material";
+import UploadIcon from "@mui/icons-material/Upload";
 import validator from "validator";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -23,6 +27,7 @@ import {
   setsubmittedAllert,
 } from "../Redux/Slices/CreateSlice";
 import type { RootState } from "../Redux/Store";
+import { uploadToCloudinary } from "../cloudinary/uploadToCloudinary";
 
 interface CreateProps {
   open: boolean;
@@ -31,7 +36,9 @@ interface CreateProps {
 
 export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
   const dispatch = useDispatch();
-  const contacts = useSelector((state: RootState) => state.ContectReducer.Contacts);
+  const contacts = useSelector(
+    (state: RootState) => state.ContectReducer.Contacts
+  );
   const formData = useSelector((state: RootState) => state.ContectReducer.form);
 
   const [errors, setErrors] = useState({
@@ -75,10 +82,7 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
 
     const phoneStr = formData.phoneno?.toString() || "";
 
-    if (
-      phoneStr.length !== 10 ||
-      !validator.isMobilePhone(phoneStr) 
-    ) {
+    if (phoneStr.length !== 10 || !validator.isMobilePhone(phoneStr)) {
       newErrors.phoneno = "Phone number must be valid and exactly 10 digits.";
       isValid = false;
     }
@@ -109,7 +113,7 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
         Phoneno: Number(formData.phoneno),
         Address: formData.address.trim(),
         Label: formData.category,
-        image: "",
+        image: formData.image || "",
       })
     );
 
@@ -144,6 +148,41 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
           </Alert>
         )}
 
+        <Box display="flex" justifyContent="center" mb={2}>
+          {formData.image ? (
+            <Avatar src={formData.image} sx={{ width: 80, height: 80 }} />
+          ) : (
+            <Avatar sx={{ width: 80, height: 80 }}>
+              {formData.name?.[0] || "?"}
+            </Avatar>
+          )}
+        </Box>
+
+        <Box display="flex" justifyContent="center" mb={2}>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<UploadIcon />}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  try {
+                    const cloudUrl = await uploadToCloudinary(file);
+                    dispatch(updateForm({ image: cloudUrl }));
+                  } catch (err) {
+                    console.error("Upload failed", err);
+                    alert("Image upload failed.");
+                  }
+                }
+              }}
+            />
+          </Button>
+        </Box>
+
         <TextField
           required
           label="Name"
@@ -177,7 +216,12 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
           onChange={(e) => dispatch(updateForm({ address: e.target.value }))}
         />
 
-        <FormControl required fullWidth margin="dense" error={!!errors.category}>
+        <FormControl
+          required
+          fullWidth
+          margin="dense"
+          error={!!errors.category}
+        >
           <InputLabel>Category</InputLabel>
           <Select
             value={formData.category}
@@ -190,9 +234,9 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
             <MenuItem value="Family">Family</MenuItem>
           </Select>
         </FormControl>
-        {errors.category && (
-          <div
-            style={{
+        {errors.category ? (
+          <Typography
+            sx={{
               color: "#d32f2f",
               fontSize: "0.75rem",
               marginTop: "3px",
@@ -200,8 +244,8 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
             }}
           >
             {errors.category}
-          </div>
-        )}
+          </Typography>
+        ) : null}
       </DialogContent>
 
       <DialogActions>

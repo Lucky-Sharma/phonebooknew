@@ -1,6 +1,4 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import logo from "../../assets/react.svg";
-
 export interface Contact {
   id: number;
   name: string;
@@ -12,6 +10,7 @@ export interface Contact {
 }
 
 export interface FormState {
+  image: string;
   name: string;
   phoneno: string;
   address: string;
@@ -41,7 +40,6 @@ const initialState: CounterState = {
     {
       id: 1,
       name: "Alice Johnson",
-      image: logo,
       Phoneno: 9876543210,
       Address: "123 Maple Street, New York, NY",
       Label: "Friend",
@@ -124,6 +122,7 @@ const initialState: CounterState = {
     phoneno: "",
     address: "",
     category: "",
+    image: ""
   },
   pagination: {
     currentPage: 1,
@@ -177,6 +176,7 @@ export const changeContacts = createSlice({
         phoneno: "",
         address: "",
         category: "",
+        image:""
       };
     },
 
