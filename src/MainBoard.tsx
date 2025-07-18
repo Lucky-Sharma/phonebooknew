@@ -13,24 +13,27 @@ import { Alert, Button, Snackbar } from "@mui/material";
 import { PersonCard } from "./components/PersonCard";
 import { Counter } from "./components/Counter";
 import DoneIcon from '@mui/icons-material/Done';
-const page_Length = 5;
 
-export const Board = () => {
+const pageLength = 5;
+
+export const MainBoard = () => {
   const dispatch = useDispatch();
 
   const currentPage = useSelector(
-    (state: RootState) => state.ContectReducer.pagination.currentPage
+    (state: RootState) => state.ContactReducer.pagination.currentPage
   );
-  const Data = useSelector((state: RootState) => state.ContectReducer.Contacts);
+  const Data = useSelector((state: RootState) => state.ContactReducer.Contacts);
   const searchTerm = useSelector(
-    (state: RootState) => state.ContectReducer.UI.searchTerm
+    (state: RootState) => state.ContactReducer.UI.searchTerm
   );
+  
   const selectedFilter = useSelector(
-    (state: RootState) => state.ContectReducer.UI.selectedFilter
+    (state: RootState) => state.ContactReducer.UI.selectedFilter
   );
   const allertStatus = useSelector(
-    (state: RootState) => state.ContectReducer.UI.submittedAllert
+    (state: RootState) => state.ContactReducer.UI.submittedAllert
   );
+
   const filteredContacts = Data.filter((contact) => {
     const matchesSearch = contact.name
       .toLowerCase()
@@ -41,20 +44,20 @@ export const Board = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const sortedFilteredContacts = [...filteredContacts].sort((a, b) => {
+  const sortedFilteredContacts = filteredContacts.sort((a, b) => {
     if (a.bookmarked === b.bookmarked) {
       return a.name.localeCompare(b.name);
     }
     return b.bookmarked ? 1 : -1;
   });
 
-  const startIndex = (currentPage - 1) * page_Length;
-  const endIndex = currentPage * page_Length;
+  const startIndex = (currentPage - 1) * pageLength;
+  const endIndex = currentPage * pageLength;
   const paginatedContacts = sortedFilteredContacts.slice(startIndex, endIndex);
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredContacts.length / page_Length)
+    Math.ceil(filteredContacts.length / pageLength)
   );
 
   useEffect(() => {
@@ -88,7 +91,7 @@ export const Board = () => {
         >
           Page {currentPage} of {totalPages}
         </span>
-
+        
         <Button
           disabled={currentPage === totalPages}
           onClick={() => dispatch(setPagination(currentPage + 1))}

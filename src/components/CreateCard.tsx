@@ -34,12 +34,12 @@ interface CreateProps {
   onClose: () => void;
 }
 
-export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
+export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
   const dispatch = useDispatch();
   const contacts = useSelector(
-    (state: RootState) => state.ContectReducer.Contacts
+    (state: RootState) => state.ContactReducer.Contacts
   );
-  const formData = useSelector((state: RootState) => state.ContectReducer.form);
+  const formData = useSelector((state: RootState) => state.ContactReducer.form);
 
   const [errors, setErrors] = useState({
     name: "",
@@ -121,7 +121,7 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
     onClose();
   };
 
-  const hasErrors = Object.values(errors).some((error) => error !== "");
+  const hasErrors = errors.name =="" ||errors.address==""||errors.category==""||errors.phoneno=="";
 
   return (
     <Dialog
@@ -141,12 +141,12 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
     >
       <DialogTitle>Create Contact</DialogTitle>
       <DialogContent>
-        {hasErrors && (
+        {!hasErrors ? (
           <Alert severity="error" sx={{ mb: 2 }}>
             <AlertTitle>Validation Error</AlertTitle>
-            Please fix the form errors below.
+            Please fill the details correctly .
           </Alert>
-        )}
+        ):null}
 
         <Box display="flex" justifyContent="center" mb={2}>
           {formData.image ? (
@@ -174,7 +174,7 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
                     const cloudUrl = await uploadToCloudinary(file);
                     dispatch(updateForm({ image: cloudUrl }));
                   } catch (err) {
-                    console.error("Upload failed", err);
+
                     alert("Image upload failed.");
                   }
                 }
@@ -215,7 +215,7 @@ export const Create: React.FC<CreateProps> = ({ open, onClose }) => {
           value={formData.address}
           onChange={(e) => dispatch(updateForm({ address: e.target.value }))}
         />
-
+        
         <FormControl
           required
           fullWidth

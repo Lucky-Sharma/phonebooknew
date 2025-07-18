@@ -3,7 +3,7 @@ import type { RootState } from "../Redux/Store";
 
 export const Counter = () => {
   const count = useSelector(
-    (state: RootState) => state.ContectReducer.UI.counter
+    (state: RootState) => state.ContactReducer.UI.counter
   );
   return (
     <div>

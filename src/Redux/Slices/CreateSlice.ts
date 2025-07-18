@@ -26,7 +26,7 @@ export interface UIState {
   submittedAllert:boolean
 }
 
-export interface CounterState {
+export interface contactState {
   Contacts: Contact[];
   UI: UIState;
   form: FormState;
@@ -35,7 +35,7 @@ export interface CounterState {
   };
 }
 
-const initialState: CounterState = {
+const initialState: contactState = {
   Contacts: [
     {
       id: 1,
@@ -130,7 +130,7 @@ const initialState: CounterState = {
 };
 
 export const changeContacts = createSlice({
-  name: "Changecontects",
+  name: "ChangeContacts",
   initialState,
   reducers: {
     addContact: (state, action: PayloadAction<Contact>) => {

@@ -1,10 +1,10 @@
 import { Container } from "@mui/material";
-import { Board } from "./Board";
+import { MainBoard } from "./MainBoard";
 
 function App() {
   return (
     <Container>
-      <Board />
+      <MainBoard />
       
     </Container>
   );

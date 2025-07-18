@@ -52,10 +52,10 @@ export const PhoneList = ({ contact }: Props) => {
 
   const bookmarkState = useSelector(
     (state: RootState) =>
-      state.ContectReducer.Contacts.find((c) => c.id === contact.id)?.bookmarked
+      state.ContactReducer.Contacts.find((c) => c.id === contact.id)?.bookmarked
   );
 
-  const contacts = useSelector((state: RootState) => state.ContectReducer.Contacts);
+  const contacts = useSelector((state: RootState) => state.ContactReducer.Contacts);
 
   const handleBookmarkToggle = () => {
     dispatch(setBookmark(contact.id));

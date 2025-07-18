@@ -16,7 +16,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
-import { Create } from "./Create";
+import { CreateCard } from "./CreateCard";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm, setSelectedFilter } from "../Redux/Slices/CreateSlice";
@@ -41,10 +41,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export function Navbar() {
   const dispatch = useDispatch();
   const searchTerm = useSelector(
-    (state: RootState) => state.ContectReducer.UI.searchTerm
+    (state: RootState) => state.ContactReducer.UI.searchTerm
   );
   const selectedFilter = useSelector(
-    (state: RootState) => state.ContectReducer.UI.selectedFilter
+    (state: RootState) => state.ContactReducer.UI.selectedFilter
   );
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -175,7 +175,7 @@ export function Navbar() {
       </AppBar>
 
       {/* Create Modal */}
-      <Create open={createOpen} onClose={handleCreateClose} />
+      <CreateCard open={createOpen} onClose={handleCreateClose} />
     </Box>
   );
 }

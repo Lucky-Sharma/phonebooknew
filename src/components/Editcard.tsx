@@ -25,12 +25,12 @@ export const Editcard: React.FC = () => {
   const dispatch = useDispatch();
 
   const open = useSelector(
-    (state: RootState) => state.ContectReducer.UI.editOpen
+    (state: RootState) => state.ContactReducer.UI.editOpen
   );
   const contact = useSelector(
-    (state: RootState) => state.ContectReducer.UI.selectedContact
+    (state: RootState) => state.ContactReducer.UI.selectedContact
   );
-  const formData = useSelector((state: RootState) => state.ContectReducer.form);
+  const formData = useSelector((state: RootState) => state.ContactReducer.form);
 
   useEffect(() => {
     if (contact) {

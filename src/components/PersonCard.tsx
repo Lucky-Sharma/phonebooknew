@@ -21,10 +21,10 @@ import {
 export const PersonCard: React.FC = () => {
   const dispatch = useDispatch();
   const open = useSelector(
-    (state: RootState) => state.ContectReducer.UI.showPersonCard
+    (state: RootState) => state.ContactReducer.UI.showPersonCard
   );
   const contact = useSelector(
-    (state: RootState) => state.ContectReducer.UI.selectedContact
+    (state: RootState) => state.ContactReducer.UI.selectedContact
   );
 
   const handleClose = () => {
