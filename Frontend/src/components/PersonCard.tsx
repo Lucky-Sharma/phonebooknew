@@ -73,20 +73,20 @@ export const PersonCard: React.FC = () => {
               Phone
             </Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>
-              {contact.Phoneno}
+              {contact.phoneno}
             </Typography>
 
             <Typography variant="subtitle1" color="textSecondary">
               Address
             </Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>
-              {contact.Address}
+              {contact.address}
             </Typography>
 
             <Typography variant="subtitle1" color="textSecondary">
               Category
             </Typography>
-            <Typography variant="body1">{contact.Label}</Typography>
+            <Typography variant="body1">{contact.label}</Typography>
           </Box>
         </Paper>
       </DialogContent>

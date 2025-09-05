@@ -13,6 +13,7 @@
   "description": "",
   "devDependencies": {
     "@types/cors": "^2.8.19",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.2.1",
     "@types/streamifier": "^0.1.2",
@@ -26,6 +27,7 @@
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "streamifier": "^0.1.1"
   }

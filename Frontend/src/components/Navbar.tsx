@@ -174,7 +174,6 @@ export function Navbar() {
         </Box>
       </AppBar>
 
-      {/* Create Modal */}
       <CreateCard open={createOpen} onClose={handleCreateClose} />
     </Box>
   );

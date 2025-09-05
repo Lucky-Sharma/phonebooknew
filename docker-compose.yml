@@ -1,0 +1,11 @@
+# version: '3.8'
+services:
+  web:
+    environment:
+    
+    image: 2b3613a1944078728cff2136960b780d6e06f3dd2fabb45c8672ac16008b3e3c
+  second:
+    image: 2b3613a1944078728cff2136960b780d6e06f3dd2fabb45c8672ac16008b3e3c
+    ports :
+      - "5173:5173"
+    

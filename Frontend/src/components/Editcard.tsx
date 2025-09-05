@@ -12,17 +12,19 @@ import {
   MenuItem,
   Slide,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   setEditOpen,
   changeData,
   updateForm,
   resetForm,
+  editDataThunk,
 } from "../Redux/Slices/CreateSlice";
 import type { RootState } from "../Redux/Store";
+import { useAppDispatch } from "./Phonelist";
 
 export const Editcard: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const open = useSelector(
     (state: RootState) => state.ContactReducer.UI.editOpen
@@ -37,9 +39,9 @@ export const Editcard: React.FC = () => {
       dispatch(
         updateForm({
           name: contact.name,
-          phoneno: contact.Phoneno.toString(),
-          address: contact.Address,
-          category: contact.Label,
+          phoneno: contact.phoneno.toString(),
+          address: contact.address,
+          category: contact.label,
         })
       );
     }
@@ -47,6 +49,15 @@ export const Editcard: React.FC = () => {
 
   const handleUpdate = () => {
     if (!contact) return;
+    dispatch(
+      editDataThunk({
+        id: contact.id,
+        name: formData.name,
+        phoneno: JSON.stringify(formData.phoneno),
+        address: formData.address,
+        label: formData.category,
+      })
+    );
 
     dispatch(
       changeData({
@@ -67,15 +78,18 @@ export const Editcard: React.FC = () => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}
-    slots={{ transition:Slide }}
-          slotProps={{
-            transition: {
-              direction:"up",
-              in: open,
-              appear: true,
-            },
-          }}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      slots={{ transition: Slide }}
+      slotProps={{
+        transition: {
+          direction: "up",
+          in: open,
+          appear: true,
+        },
+      }}
+    >
       <DialogTitle>Edit Contact</DialogTitle>
       <DialogContent>
         <TextField
@@ -83,7 +97,7 @@ export const Editcard: React.FC = () => {
           fullWidth
           margin="dense"
           value={formData.name}
-          error={formData.name.trim() === ""}
+          error={formData.address === undefined || formData.address.trim() === ""}
           onChange={(e) => dispatch(updateForm({ name: e.target.value }))}
         />
         <TextField
@@ -91,7 +105,7 @@ export const Editcard: React.FC = () => {
           fullWidth
           margin="dense"
           value={formData.phoneno}
-          error={formData.phoneno.length<10}
+          error={formData.phoneno.length < 10}
           onChange={(e) => dispatch(updateForm({ phoneno: e.target.value }))}
         />
         <TextField
@@ -99,17 +113,15 @@ export const Editcard: React.FC = () => {
           fullWidth
           margin="dense"
           value={formData.address}
-          error={formData.address.trim()==""}
+          error={!formData.address?.trim()}
           onChange={(e) => dispatch(updateForm({ address: e.target.value }))}
         />
         <FormControl fullWidth margin="dense">
           <InputLabel>Category</InputLabel>
           <Select
             value={formData.category}
-            error={formData.category==""}
-            onChange={(e) =>
-              dispatch(updateForm({ category: e.target.value }))
-            }
+            error={formData.category == ""}
+            onChange={(e) => dispatch(updateForm({ category: e.target.value }))}
             label="Category"
           >
             <MenuItem value="Work">Work</MenuItem>

@@ -21,13 +21,11 @@ import UploadIcon from "@mui/icons-material/Upload";
 import validator from "validator";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addContact,
   updateForm,
   resetForm,
   setsubmittedAllert,
 } from "../Redux/Slices/CreateSlice";
-import type { RootState } from "../Redux/Store";
-import { uploadToCloudinary } from "../cloudinary/uploadToCloudinary";
+import type { AppDispatch, RootState } from "../Redux/Store";
 
 interface CreateProps {
   open: boolean;
@@ -35,10 +33,7 @@ interface CreateProps {
 }
 
 export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(
-    (state: RootState) => state.ContactReducer.Contacts
-  );
+  const dispatch = useDispatch<AppDispatch>();
   const formData = useSelector((state: RootState) => state.ContactReducer.form);
 
   const [errors, setErrors] = useState({
@@ -51,19 +46,10 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
   useEffect(() => {
     if (open) {
       dispatch(resetForm());
-      setErrors({
-        name: "",
-        phoneno: "",
-        address: "",
-        category: "",
-      });
+      setErrors({ name: "", phoneno: "", address: "", category: "" });
+      
     }
   }, [open, dispatch]);
-
-  const getNextId = () => {
-    if (contacts.length === 0) return 1;
-    return Math.max(...contacts.map((c) => c.id)) + 1;
-  };
 
   const validate = () => {
     const newErrors = {
@@ -81,7 +67,6 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
     }
 
     const phoneStr = formData.phoneno?.toString() || "";
-
     if (phoneStr.length !== 10 || !validator.isMobilePhone(phoneStr)) {
       newErrors.phoneno = "Phone number must be valid and exactly 10 digits.";
       isValid = false;
@@ -101,27 +86,63 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
     return isValid;
   };
 
-  const handleSubmit = () => {
+  const handleImageUpload = async (file: File) => {
+    const form = new FormData();
+    form.append("image", file);
+
+    try {
+      const response = await fetch("/api/uploadToCloudinary", {
+        method: "POST",
+        body: form,
+      });
+      
+      const data = await response.json();
+      if (!data.imageUrl) throw new Error("No image URL returned");
+
+      dispatch(updateForm({ image: data.imageUrl })); 
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("Image upload failed");
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!validate()) return;
 
     dispatch(setsubmittedAllert(true));
 
-    dispatch(
-      addContact({
-        id: getNextId(),
+    try {
+      const contactPayload = {
         name: formData.name.trim(),
-        Phoneno: Number(formData.phoneno),
-        Address: formData.address.trim(),
-        Label: formData.category,
-        image: formData.image || "",
-      })
-    );
+        phoneno: formData.phoneno,
+        address: formData.address.trim(),
+        label: formData.category,
+        imgsrc: formData.image, 
+      };
 
-    dispatch(resetForm());
-    onClose();
+      const response = await fetch("/api/createContact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contactPayload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create contact");
+      }
+
+      const data = await response.json();
+      console.log("Created contact:", data);
+
+      dispatch(resetForm());
+      onClose();
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Failed to create contact");
+    }
   };
 
-  const hasErrors = errors.name =="" ||errors.address==""||errors.category==""||errors.phoneno=="";
+  const hasErrors =
+    errors.name || errors.address || errors.category || errors.phoneno;
 
   return (
     <Dialog
@@ -131,22 +152,16 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
         onClose();
       }}
       slots={{ transition: Slide }}
-      slotProps={{
-        transition: {
-          direction: "down",
-          in: open,
-          appear: true,
-        },
-      }}
+      slotProps={{ transition: { direction: "down", in: open, appear: true } }}
     >
       <DialogTitle>Create Contact</DialogTitle>
       <DialogContent>
-        {!hasErrors ? (
+        {hasErrors && (
           <Alert severity="error" sx={{ mb: 2 }}>
             <AlertTitle>Validation Error</AlertTitle>
-            Please fill the details correctly .
+            Please fill the details correctly.
           </Alert>
-        ):null}
+        )}
 
         <Box display="flex" justifyContent="center" mb={2}>
           {formData.image ? (
@@ -164,19 +179,15 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
             component="label"
             startIcon={<UploadIcon />}
           >
+            Upload Image
             <input
               type="file"
               accept="image/*"
-              onChange={async (e) => {
+              hidden
+              onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  try {
-                    const cloudUrl = await uploadToCloudinary(file);
-                    dispatch(updateForm({ image: cloudUrl }));
-                  } catch (err) {
-
-                    alert("Image upload failed.");
-                  }
+                  handleImageUpload(file); 
                 }
               }}
             />
@@ -215,7 +226,7 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
           value={formData.address}
           onChange={(e) => dispatch(updateForm({ address: e.target.value }))}
         />
-        
+
         <FormControl
           required
           fullWidth
@@ -226,7 +237,9 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
           <Select
             value={formData.category}
             label="Category"
-            onChange={(e) => dispatch(updateForm({ category: e.target.value }))}
+            onChange={(e) =>
+              dispatch(updateForm({ category: e.target.value }))
+            }
           >
             <MenuItem value="Work">Work</MenuItem>
             <MenuItem value="School">School</MenuItem>
@@ -234,7 +247,8 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
             <MenuItem value="Family">Family</MenuItem>
           </Select>
         </FormControl>
-        {errors.category ? (
+
+        {errors.category && (
           <Typography
             sx={{
               color: "#d32f2f",
@@ -245,7 +259,7 @@ export const CreateCard: React.FC<CreateProps> = ({ open, onClose }) => {
           >
             {errors.category}
           </Typography>
-        ) : null}
+        )}
       </DialogContent>
 
       <DialogActions>

@@ -23,5 +23,15 @@ model Contacts {
   label String
   imgsrc String?
   bookmark Boolean @default(false)
+  userId Int @default(1)
+  user User @relation(fields: [userId],references: [id])
+
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  password Int
+  contacts Contacts[]
 }
 
